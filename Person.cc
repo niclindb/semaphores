@@ -23,12 +23,15 @@ void Person::EnterBathroom() {
         sem_post (&admin); 
         cout << Name+" (M) is waiting\n\n"; 
         sem_wait (&male_sem);
+        sem_wait(&admin);
+
     }
     else if(sex == 'F' && (males_in_bath > 0 || females_in_bath == MAX_CAPACITY)){
         nfw++; 
         sem_post (&admin); 
         cout << Name+" (F) is waiting\n\n"; 
         sem_wait (&female_sem);
+        sem_wait(&admin);
     }
     // enter bathroom
     int occupancy;
@@ -39,21 +42,17 @@ void Person::EnterBathroom() {
         if(occupancy < MAX_CAPACITY && nmw>0){
             nmw--;
             sem_post(&male_sem);
-        }else{
-            sem_post(&admin);
         }
     }
     else {
         occupancy = ++females_in_bath;
         if(occupancy < MAX_CAPACITY && nfw>0){
-            nfw--;
+            nfw--;   
             sem_post(&female_sem);
-        }else{
-            // no one else to let in release admin lock
-            sem_post(&admin);
         }
     }
-    cout << Name<<" ("<<sex<<") is entering the bathroom\n"<<occupancy<<" people are in the bathroom\n\n";
+    sem_post(&admin);
+    cout << Name + " ("+sex+") is entering the bathroom.\n"+to_string(occupancy)+" people are in the bathroom\n\n";
 }
 
 void Person::ExitBathroom() {
@@ -61,7 +60,7 @@ void Person::ExitBathroom() {
     //exit bathrom
     if (sex == 'M') {
         males_in_bath--;
-        cout << Name << " (M) exited.\n Occupancy: " << males_in_bath << endl;
+        cout << Name + " (M) exited.\n Occupancy: " + to_string(males_in_bath)+"\n";
        // if it is empty let the other sex in
         if(males_in_bath == 0 && nfw > 0){
             nfw--;
@@ -70,13 +69,10 @@ void Person::ExitBathroom() {
             nmw--;
             sem_post(&male_sem);
         }
-        else{
-            sem_post(&admin);
-        }
 
     } else {
         females_in_bath--;
-        cout << Name << " (F) exited.\n Occupancy: " << females_in_bath << endl;
+        cout << Name + " (F) exited.\n Occupancy: " + to_string(females_in_bath)+"\n";
         if(females_in_bath == 0 && nmw > 0){
             nmw--;
             sem_post(&male_sem);
@@ -84,8 +80,6 @@ void Person::ExitBathroom() {
             nfw--;
             sem_post(&female_sem);
         }
-        else{
-            sem_post(&admin);
-        }
     }
+    sem_post(&admin);
 }
