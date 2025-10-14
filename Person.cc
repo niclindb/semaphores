@@ -32,7 +32,7 @@ void Person::EnterBathroom() {
     }
     // enter bathroom
     int occupancy;
-    cout << Name<<" ("<<sex<<") is entering the bathroom\n"<<occupancy<<" people are in the bathroom\n\n";
+    
     if(sex == 'M') {
         occupancy = ++males_in_bath;
         // if more people of the same sex are waiting let the next one in. 
@@ -53,7 +53,7 @@ void Person::EnterBathroom() {
             sem_post(&admin);
         }
     }
-
+    cout << Name<<" ("<<sex<<") is entering the bathroom\n"<<occupancy<<" people are in the bathroom\n\n";
 }
 
 void Person::ExitBathroom() {
@@ -66,7 +66,7 @@ void Person::ExitBathroom() {
         if(males_in_bath == 0 && nfw > 0){
             nfw--;
             sem_post(&female_sem);
-        }else if (nmw > 0){ // if more males are waiting let them in
+        }else if (nmw > 0 && nfw == 0){ // if more males are waiting let them in only if no females are waiting
             nmw--;
             sem_post(&male_sem);
         }
@@ -80,7 +80,7 @@ void Person::ExitBathroom() {
         if(females_in_bath == 0 && nmw > 0){
             nmw--;
             sem_post(&male_sem);
-        }else if (nfw > 0){
+        }else if (nfw > 0 && nmw == 0){// keeps males waiting for ever
             nfw--;
             sem_post(&female_sem);
         }
