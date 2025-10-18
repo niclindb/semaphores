@@ -20,10 +20,6 @@ void* PersonThread(void* arg) {
 }
 
 int main() {
-    // Initialize semaphores
-    sem_init(&male_sem, 0, 0);
-    sem_init(&female_sem, 0, 0);
-    sem_init(&admin, 0, 1);
 
     // Create 15 people
     Person people[15] = {
@@ -43,11 +39,6 @@ int main() {
     // Wait for all threads to finish
     for (int i = 0; i < 15; ++i)
         pthread_join(threads[i], nullptr);
-
-    // Cleanup semaphores
-    sem_destroy(&male_sem);
-    sem_destroy(&female_sem);
-    sem_destroy(&admin);
 
     return 0;
 }
